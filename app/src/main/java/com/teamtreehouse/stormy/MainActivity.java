@@ -34,7 +34,7 @@ public class MainActivity extends ActionBarActivity {
 
     private CurrentWeather mCurrentWeather;
 
-    @InjectView(R.id.timeLabel) TextView mTimeLabel; //doing it with butterknife annotation
+    @InjectView(R.id.timeLabel) TextView mTimeLabel;
     @InjectView(R.id.temperatureLabel) TextView mTemperatureLabel;
     @InjectView(R.id.humidityValue) TextView mHumidityValue;
     @InjectView(R.id.precipValue) TextView mPrecipValue;
@@ -42,30 +42,23 @@ public class MainActivity extends ActionBarActivity {
     @InjectView(R.id.iconImageView) ImageView mIconImageView;
     @InjectView(R.id.refreshImageView) ImageView mRefreshImageView;
     @InjectView(R.id.progressBar) ProgressBar mProgressBar;
-    //create new method to check for network connectivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.inject(this); //butterknife
+        ButterKnife.inject(this);
 
-        mProgressBar.setVisibility(View.INVISIBLE); // We can hide the loading progress bar here or in the xml. The tutorial guy just decided to do it here. *
+        mProgressBar.setVisibility(View.INVISIBLE);
 
-        final double latitude = 37.8267; //cut and paste this two lines from below to up here so we can use them in method calls
+        final double latitude = 37.8267;
         final double longitude = -122.423;
 
         mRefreshImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // We want to get a forecast just like we are in the OnCreate method.
-                // Let's copy and paste everything to, no, I'm just kidding.
-                // Let's refactor this code into a new method that we can use here and
-                // on Create, and in the on click method.
-                // Highlight everything from the API key to the bottom of the if else block> Right click on the highlighted>Extract>method > call it
                 getForecast(latitude, longitude);
 
-                // If we we want to allow for different locations, we might want to provide latitude and longitude.
             }
         });
 
@@ -74,8 +67,7 @@ public class MainActivity extends ActionBarActivity {
         Log.d(TAG, "Main UI code is running!");
     }
 
-    //refactored and created the get Forecast method:
-    private void getForecast(double latitude, double longitude) { //We'll pass in the double latitude and the double longitude.
+    private void getForecast(double latitude, double longitude) {
         String apiKey = "d5faf0cb201f103df4dde0b8b0a4f490";
         String forecastUrl = "https://api.forecast.io/forecast/" + apiKey +
                 "/" + latitude + "," + longitude;
@@ -90,7 +82,6 @@ public class MainActivity extends ActionBarActivity {
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
-                    //This is updating the main UI so we need to 'runOnUiThread' not a background thread. so surround 'toggleRefresh();' with runOnUiThread(new Runnable()){      }
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -102,8 +93,6 @@ public class MainActivity extends ActionBarActivity {
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-
-                    //This is updating the UI so we need to 'runOnUiThread' not a background thread. so surround 'toggleRefresh();' with runOnUiThread(new Runnable()){      }
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -115,15 +104,10 @@ public class MainActivity extends ActionBarActivity {
                         Log.v(TAG, jsonData);
                         if (response.isSuccessful()) {
                             mCurrentWeather = getCurrentDetails(jsonData);
-
-                            //can't do it in background thread because only the main thread is allowed to update the UI like we stated before
-                            // What we need to do is send a message to the main UI thread that we have code ready for it.
-                            // We can do this a few different ways, but
-                            // we'll use a simple one using a special helper method called runOnUIThread.
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    updateDisplay(); //create  a new method for update display instead of putting it here so code isn't messy
+                                    updateDisplay();
                                 }
                             });
                         } else {
@@ -143,14 +127,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void toggleRefresh() {
-        // hide things if they are showing and show things if they are invisible
         if(mProgressBar.getVisibility() == View.INVISIBLE) {
-            mProgressBar.setVisibility(View.VISIBLE); //make progress bar visible when refreshing *
-            mRefreshImageView.setVisibility(View.INVISIBLE); //make the refresh image invisible when normal *
+            mProgressBar.setVisibility(View.VISIBLE);
+            mRefreshImageView.setVisibility(View.INVISIBLE);
         }
-        else { //otherwise:
-            mProgressBar.setVisibility(View.INVISIBLE); //make progress bar invisible *
-            mRefreshImageView.setVisibility(View.VISIBLE); //make the refresh image visible *
+        else {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            mRefreshImageView.setVisibility(View.VISIBLE);
         }
     }
 
