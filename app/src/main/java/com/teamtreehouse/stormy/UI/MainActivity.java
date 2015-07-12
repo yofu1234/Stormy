@@ -20,7 +20,11 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.teamtreehouse.stormy.R;
 import com.teamtreehouse.stormy.weather.Current;
+import com.teamtreehouse.stormy.weather.Day;
+import com.teamtreehouse.stormy.weather.Forecast;
+import com.teamtreehouse.stormy.weather.Hour;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    private Current mCurrent;
+    private Forecast mForecast;
 
     @InjectView(R.id.timeLabel) TextView mTimeLabel;
     @InjectView(R.id.temperatureLabel) TextView mTemperatureLabel;
@@ -84,9 +88,9 @@ public class MainActivity extends ActionBarActivity {
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
-                    runOnUiThread(new Runnable(){
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void run(){
+                        public void run() {
                             toggleRefresh();
                         }
                     });
@@ -95,9 +99,9 @@ public class MainActivity extends ActionBarActivity {
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-                    runOnUiThread(new Runnable(){
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void run(){
+                        public void run() {
                             toggleRefresh();
                         }
                     });
@@ -105,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
                         String jsonData = response.body().string();
                         Log.v(TAG, jsonData);
                         if (response.isSuccessful()) {
-                            mCurrent = getCurrentDetails(jsonData);
+                            mForecast = parseForecastDetails(jsonData);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -140,25 +144,93 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void updateDisplay() {
-        mTemperatureLabel.setText(mCurrent.getTemperature() + ""); // the temperature u get from .getTemperature is a 'Double' value thus you have to convert it to a string via + "" . simple.
-        mTimeLabel.setText("At " + mCurrent.getFormattedTime() + " it will be");
-        mHumidityValue.setText(mCurrent.getHumidity() + "");
-        mPrecipValue.setText(mCurrent.getPrecipChance() + "%");
-        mSummaryLabel.setText(mCurrent.getSummary());
+        Current current = mForecast.getCurrent();
 
-        Drawable drawable = getResources().getDrawable(mCurrent.getIconId());
+        mTemperatureLabel.setText(current.getTemperature() + "");
+        mTimeLabel.setText("At " + current.getFormattedTime() + " it will be");
+        mHumidityValue.setText(current.getHumidity() + "");
+        mPrecipValue.setText(current.getPrecipChance() + "%");
+        mSummaryLabel.setText(current.getSummary());
+
+        Drawable drawable = getResources().getDrawable(current.getIconId());
         mIconImageView.setImageDrawable(drawable);
-        //pretty simple stuff^
     }
+
+    private Forecast parseForecastDetails(String jsonData) throws JSONException {
+        Forecast forecast = new Forecast();
+
+        forecast.setCurrent(getCurrentDetails(jsonData));
+        forecast.setHourlyForecast(getHourlyForecast(jsonData));
+        forecast.setDailyForecast(getDailyForecast(jsonData));
+        return forecast;
+    }
+
+    //For notes, see the private Hour[] below this one
+    private Day[] getDailyForecast(String jsonData) throws JSONException {
+        JSONObject forecast = new JSONObject(jsonData);
+        String timezone = forecast.getString("timezone");
+
+        JSONObject daily = forecast.getJSONObject("daily");
+        JSONArray data = daily.getJSONArray("data");
+
+        Day[] days = new Day[data.length()];
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject jsonDay = data.getJSONObject(i);
+            Day day = new Day();
+
+            day.setSummary(jsonDay.getString("summary"));
+            day.setIcon(jsonDay.getString("icon"));
+            day.setTemperatureMax(jsonDay.getDouble("temperatureMax"));
+            day.setTime(jsonDay.getLong("time"));
+            day.setTimezone(timezone);
+
+            days[i] = day;
+        }
+            return days;
+
+    }
+
+    private Hour[] getHourlyForecast(String jsonData) throws JSONException {
+        JSONObject forecast = new JSONObject(jsonData);
+        String timezone = forecast.getString("timezone"); // [******]
+        JSONObject hourly = forecast.getJSONObject("hourly");
+        JSONArray data = hourly.getJSONArray("data");
+
+        //Hopefully this is just review for you:
+        Hour [] hours = new Hour[data.length()];  //unlike for a regular Array, where its just .length, for JSONArray we need to call a method instead of accessing a property, thus .length()
+
+        // Now we can loop through all the items in the JSONArray, get the data we want from each one, and set a new Hour object in the hours array.
+        for (int i = 0; i < data.length(); i++){ //test the int against the data.length and increment it by 1 each time
+            JSONObject jsonHour = data.getJSONObject(i);
+
+            // Now that we have a JSONObject, we can use it to populate our model object, just like we see in our getCurrentDetails method below.
+            // So let's add a line and we'll create a new Hour variable to populate,
+            Hour hour = new Hour();  //Caution, make sure you have the Hour hour = new Hour(); above inside the for-loop, because if not, JAVA will just populate the array with the same object over and over again.
+            //And now we'll set all the values for this new object using the jsonHour object.
+            hour.setSummary(jsonHour.getString("summary")); // get the String data //pass in the "key"    // or should I say pass in the "key" to get the String data
+            hour.setTemperature(jsonHour.getDouble("temperature")); //get the Double data //pass in the "key"
+            hour.setIcon(jsonHour.getString("icon"));
+            hour.setTime(jsonHour.getLong("time"));
+            hour.setTimezone(timezone); // [******] // remember 'timezone' is not in a "string key" like the other ones
+
+            //Now we need to store it in the array
+            hours[i] = hour;
+        }
+
+        return hours;
+                                             //Now let's do the same thing with the DailyForecast
+    }
+
+
 
     private Current getCurrentDetails(String jsonData) throws JSONException {
 
         JSONObject forecast = new JSONObject(jsonData);
-
         String timezone = forecast.getString("timezone");
             Log.i(TAG, "From JSON: " + timezone);
 
         JSONObject currently = forecast.getJSONObject("currently");
+
         Current current = new Current();
         current.setHumidity(currently.getDouble("humidity"));
         current.setTime(currently.getLong("time"));
@@ -171,7 +243,6 @@ public class MainActivity extends ActionBarActivity {
         Log.d(TAG, current.getFormattedTime());
 
         return current;
-
     }
 
     private boolean isNetworkAvailable() {

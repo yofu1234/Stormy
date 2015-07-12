@@ -40,11 +40,11 @@ public class Day {
         mTime = time;
     }
 
-    public String getTimeZone() {
+    public String getTimezone() {
         return mTimeZone;
     }
 
-    public void setTimeZone(String timeZone) {
+    public void setTimezone(String timeZone) {
         mTimeZone = timeZone;
     }
 
