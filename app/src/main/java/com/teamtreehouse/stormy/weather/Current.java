@@ -1,10 +1,12 @@
-package com.teamtreehouse.stormy;
+package com.teamtreehouse.stormy.weather;
+
+import com.teamtreehouse.stormy.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class CurrentWeather {
+public class Current {
 
     private String mIcon; // The Icon // it comes from Forecast API as a string, we convert it to an int
     private long mTime; //Time
