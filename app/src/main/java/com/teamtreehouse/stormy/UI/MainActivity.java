@@ -165,7 +165,6 @@ public class MainActivity extends ActionBarActivity {
         return forecast;
     }
 
-    //For notes, see the private Hour[] below this one
     private Day[] getDailyForecast(String jsonData) throws JSONException {
         JSONObject forecast = new JSONObject(jsonData);
         String timezone = forecast.getString("timezone");
@@ -192,33 +191,26 @@ public class MainActivity extends ActionBarActivity {
 
     private Hour[] getHourlyForecast(String jsonData) throws JSONException {
         JSONObject forecast = new JSONObject(jsonData);
-        String timezone = forecast.getString("timezone"); // [******]
+        String timezone = forecast.getString("timezone");
         JSONObject hourly = forecast.getJSONObject("hourly");
         JSONArray data = hourly.getJSONArray("data");
 
-        //Hopefully this is just review for you:
-        Hour [] hours = new Hour[data.length()];  //unlike for a regular Array, where its just .length, for JSONArray we need to call a method instead of accessing a property, thus .length()
+        Hour [] hours = new Hour[data.length()];
 
-        // Now we can loop through all the items in the JSONArray, get the data we want from each one, and set a new Hour object in the hours array.
-        for (int i = 0; i < data.length(); i++){ //test the int against the data.length and increment it by 1 each time
+        for (int i = 0; i < data.length(); i++){
             JSONObject jsonHour = data.getJSONObject(i);
 
-            // Now that we have a JSONObject, we can use it to populate our model object, just like we see in our getCurrentDetails method below.
-            // So let's add a line and we'll create a new Hour variable to populate,
-            Hour hour = new Hour();  //Caution, make sure you have the Hour hour = new Hour(); above inside the for-loop, because if not, JAVA will just populate the array with the same object over and over again.
-            //And now we'll set all the values for this new object using the jsonHour object.
-            hour.setSummary(jsonHour.getString("summary")); // get the String data //pass in the "key"    // or should I say pass in the "key" to get the String data
-            hour.setTemperature(jsonHour.getDouble("temperature")); //get the Double data //pass in the "key"
+            Hour hour = new Hour();
+            hour.setSummary(jsonHour.getString("summary"));
+            hour.setTemperature(jsonHour.getDouble("temperature"));
             hour.setIcon(jsonHour.getString("icon"));
             hour.setTime(jsonHour.getLong("time"));
-            hour.setTimezone(timezone); // [******] // remember 'timezone' is not in a "string key" like the other ones
+            hour.setTimezone(timezone);
 
-            //Now we need to store it in the array
             hours[i] = hour;
         }
 
         return hours;
-                                             //Now let's do the same thing with the DailyForecast
     }
 
 
