@@ -42,41 +42,8 @@ public class Current {
     // To get the image, we need to int ID that gets generated for each drawable resource.
 
     public int getIconId(){
-        // clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
-        int iconId = R.drawable.clear_day; //set this one in default, forecast api documentation says to "set a sensible icon as default"
 
-        if(mIcon.equals("clear-day")){
-            iconId = R.drawable.clear_day; //notice that the ids have _ compared to string "-" because we arent allowed to have dashes as resource names in Android Studio
-        }
-        else if (mIcon.equals("clear-night")){
-            iconId = R.drawable.clear_night;
-        }
-        else if (mIcon.equals("rain")) {
-            iconId = R.drawable.rain;
-        }
-        else if (mIcon.equals("snow")) {
-            iconId = R.drawable.snow;
-        }
-        else if (mIcon.equals("sleet")) {
-            iconId = R.drawable.sleet;
-        }
-        else if (mIcon.equals("wind")) {
-            iconId = R.drawable.wind;
-        }
-        else if (mIcon.equals("fog")) {
-            iconId = R.drawable.fog;
-        }
-        else if (mIcon.equals("cloudy")) {
-            iconId = R.drawable.cloudy;
-        }
-        else if (mIcon.equals("partly-cloudy-day")) {
-            iconId = R.drawable.partly_cloudy;
-        }
-        else if (mIcon.equals("partly-cloudy-night")) {
-            iconId = R.drawable.cloudy_night;
-        }
-
-        return iconId;
+        return Forecast.getIconId(mIcon); //return method called "getIconId" in the Forecast(.java) class (pass along Icon)
     }
 
     public void setIcon(String icon) {

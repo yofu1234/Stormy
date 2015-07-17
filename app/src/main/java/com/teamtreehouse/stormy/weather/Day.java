@@ -1,5 +1,9 @@
 package com.teamtreehouse.stormy.weather;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class Day {
     private long mTime;
     private String mSummary;
@@ -24,8 +28,8 @@ public class Day {
         mSummary = summary;
     }
 
-    public double getTemperatureMax() {
-        return mTemperatureMax;
+    public int getTemperatureMax() { //convert from "double" to an "int"
+        return (int) Math.round(mTemperatureMax);
     }
 
     public void setTemperatureMax(double temperatureMax) {
@@ -48,4 +52,23 @@ public class Day {
         mTimeZone = timeZone;
     }
 
+    public int getIconId(){
+        return Forecast.getIconId(mIcon);
+    }
+
+    //Create Day Of The Week method
+    public String getDayOfTheWeek(){
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE"); //use SimpleDateFormat just like before in h:mm, a //And the format we want to use here for the Day value from the long timestamp is just four capital Es, EEEE.
+        formatter.setTimeZone(TimeZone.getTimeZone(mTimeZone)); //this is why we created the TimeZone class. Get the Timezone method from that class and pass in the String mTimeZone --> So this takes the string that we get from the Forecast API and its a standard format that can be converted into a timezone object to use here.
+        Date dateTime = new Date(mTime * 1000); //Date constructor expects number in seconds but mTime outputs in miliseconds so * 1000 to convert it.
+        return formatter.format(dateTime);
+
+
+    }
+
 }
+
+
+
+
+
