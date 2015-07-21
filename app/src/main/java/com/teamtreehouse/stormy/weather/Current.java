@@ -1,7 +1,5 @@
 package com.teamtreehouse.stormy.weather;
 
-import com.teamtreehouse.stormy.R;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -15,14 +13,14 @@ public class Current {
     private double mPrecipChance; //chance of precipitation
     private String mSummary; //summary at the bottom
 
-    private String mTimeZone;
+    private String mTimezone;
 
-    public String getTimeZone() {
-        return mTimeZone;
+    public String getTimezone() {
+        return mTimezone;
     }
 
-    public void setTimeZone(String timeZone) {
-        mTimeZone = timeZone;
+    public void setTimezone(String timezone) {
+        mTimezone = timezone;
     }
 
     // Step 2: Generate getters and setters for everything: Code>Generate...>Getters and Setters:
@@ -81,7 +79,7 @@ public class Current {
 
     public String getFormattedTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("h:mm, a"); // this special Java called SimpleDateFormat converts unix date format to locale "normal" format
-        formatter.setTimeZone(TimeZone.getTimeZone(getTimeZone())); //set time zone, logging it from MainActivity
+        formatter.setTimeZone(TimeZone.getTimeZone(getTimezone())); //set time zone, logging it from MainActivity
 
         Date dateTime = new Date(getTime() * 1000);
         String timeString = formatter.format(dateTime);

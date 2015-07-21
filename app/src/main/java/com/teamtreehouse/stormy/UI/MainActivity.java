@@ -232,7 +232,7 @@ public class MainActivity extends ActionBarActivity {
         current.setPrecipChance(currently.getDouble("precipProbability"));
         current.setSummary(currently.getString("summary"));
         current.setTemperature(currently.getDouble("temperature"));
-        current.setTimeZone(timezone);
+        current.setTimezone(timezone);
 
         Log.d(TAG, current.getFormattedTime());
 
